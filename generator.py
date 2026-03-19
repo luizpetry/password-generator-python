@@ -5,22 +5,6 @@ AMBIGUOUS_CHARS = "0O1Il"
 
 
 def generate_password(length=12, uppercase=True, lowercase=True, numbers=True, symbols=True, exclude_ambiguous=False):
-    """Gera uma senha criptograficamente segura.
-
-    Args:
-        length (int): comprimento da senha (pelo menos 1).
-        uppercase (bool): incluir letras maiúsculas.
-        lowercase (bool): incluir letras minúsculas.
-        numbers (bool): incluir dígitos.
-        symbols (bool): incluir símbolos.
-        exclude_ambiguous (bool): remover caracteres ambíguos.
-
-    Returns:
-        str: senha gerada.
-
-    Raises:
-        ValueError: se nenhum tipo de caractere for selecionado ou length inválido.
-    """
     if length <= 0:
         raise ValueError("O comprimento da senha deve ser um número inteiro positivo.")
 

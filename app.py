@@ -1,6 +1,7 @@
 ﻿from flask import Flask, render_template, request, redirect, url_for, flash, session
 import uuid
 import string
+import os
 
 from generator import generate_password, generate_passphrase
 from checker import display_strength
@@ -214,4 +215,8 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', 5000)),
+        debug=False
+    )
