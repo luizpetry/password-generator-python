@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Senhas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--surface:#0d1117;--surface2:#111827;--surface3:#1a2235;
+  --border:#1f2d3d;--border2:#263347;
+  --accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;
+  --danger:#ef4444;--text:#e2e8f0;--muted:#64748b;--muted2:#4a5568;
+  --font:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:40px 20px;
+  background-image:radial-gradient(ellipse at 20% 20%,rgba(0,212,255,0.04) 0%,transparent 50%),
+                   radial-gradient(ellipse at 80% 80%,rgba(124,58,237,0.04) 0%,transparent 50%);
+}
+.container{max-width:860px;margin:0 auto;}
+
+.header{text-align:center;margin-bottom:48px;animation:fadeDown .6s ease both;}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:100px;padding:6px 14px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+.header-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease infinite;}
+.header h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-1px;line-height:1.1;
+  background:linear-gradient(135deg,#e2e8f0 0%,#94a3b8 50%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header p{font-size:14px;color:var(--muted);margin-top:10px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp .5s ease both;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);}
+.card.delay1{animation-delay:.1s}.card.delay2{animation-delay:.2s}
+
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.field{display:flex;flex-direction:column;gap:8px;}
+.field label{font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;}
+.field input[type=number]{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text);transition:all .25s;outline:none;}
+.field input[type=number]:focus{border-color:var(--accent);background:var(--surface3);box-shadow:0 0 0 3px rgba(0,212,255,0.1);}
+
+/* ===== TOGGLE BUTTONS - LÓGICA CORRIGIDA ===== */
+/* O input[type=checkbox] REAL fica escondido mas funcional */
+.toggles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+
+.toggle-item{position:relative;}
+
+/* Input real: absolutamente escondido mas presente no DOM e no form submit */
+.toggle-item > input[type=checkbox]{
+  position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;
+}
+
+/* Label visualmente clicável */
+.toggle-item > label{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);
+  transition:all .25s;user-select:none;
+}
+.toggle-item > label:hover{border-color:var(--border2);color:var(--text);}
+
+/* Estilo ATIVO via :has — reage ao estado REAL do checkbox */
+.toggle-item:has(> input[type=checkbox]:checked) > label{
+  background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.35);color:var(--accent);
+}
+
+.toggle-dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);transition:all .25s;flex-shrink:0;}
+.toggle-item:has(> input[type=checkbox]:checked) > label .toggle-dot{
+  background:var(--accent);box-shadow:0 0 8px rgba(0,212,255,0.6);
+}
+
+/* Seção avançada */
+.advanced-section{border-top:1px solid var(--border);padding-top:20px;margin-top:4px;display:flex;flex-direction:column;gap:10px;}
+
+.adv-toggle-item{position:relative;}
+.adv-toggle-item > input[type=checkbox]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+.adv-toggle-item > label{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);border-radius:10px;
+  padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#a78bfa;
+  transition:all .25s;user-select:none;
+}
+.adv-toggle-item > label:hover{background:rgba(124,58,237,0.1);border-color:rgba(124,58,237,0.4);}
+.adv-dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);transition:all .25s;flex-shrink:0;}
+.adv-toggle-item:has(> input[type=checkbox]:checked) > label .adv-dot{background:#7c3aed;box-shadow:0 0 8px rgba(124,58,237,0.7);}
+
+/* Expansão da palavra */
+.word-expand{overflow:hidden;max-height:0;transition:max-height .35s ease,opacity .3s ease;opacity:0;margin-top:0;}
+.adv-toggle-item:has(> input#include_word_enabled:checked) ~ .word-expand{max-height:80px;opacity:1;margin-top:4px;}
+.word-expand input[type=text]{width:100%;background:var(--surface2);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none;transition:all .25s;}
+.word-expand input[type=text]:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.1);}
+.word-expand input[type=text]::placeholder{color:var(--muted2);}
+
+/* Shuffle */
+.shuffle-item{position:relative;}
+.shuffle-item > input[type=checkbox]{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+.shuffle-item > label{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);
+  transition:all .25s;user-select:none;
+}
+.shuffle-item > label:hover{border-color:var(--border2);color:var(--text);}
+.shuffle-item:has(> input[type=checkbox]:checked) > label{color:var(--accent3);border-color:rgba(16,185,129,0.35);background:rgba(16,185,129,0.05);}
+.shuffle-dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);transition:all .25s;flex-shrink:0;}
+.shuffle-item:has(> input[type=checkbox]:checked) > label .shuffle-dot{background:var(--accent3);box-shadow:0 0 8px rgba(16,185,129,0.6);}
+
+.btn-generate{width:100%;background:linear-gradient(135deg,#0ea5e9,#06b6d4,#00d4ff);border:none;border-radius:12px;padding:16px 28px;font-family:var(--font);font-size:15px;font-weight:700;color:#030712;letter-spacing:.5px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;margin-top:8px;}
+.btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,0.35);}
+.btn-generate:active{transform:translateY(0) scale(0.98);}
+
+.alert{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 16px;color:#fca5a5;font-size:13px;font-weight:600;margin-bottom:16px;}
+
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.result-header h2{font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.result-count{font-size:11px;background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.2);border-radius:100px;padding:3px 10px;font-weight:700;}
+
+.result-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;transition:all .25s;animation:fadeSlide .4s ease both;}
+.result-item:hover{border-color:var(--border2);background:var(--surface3);}
+.result-item:last-child{margin-bottom:0;}
+.pwd-wrap{min-width:0;}
+.pwd-value{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text);word-break:break-all;display:block;}
+.strength-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.strength-badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+
+.copy-btn{flex-shrink:0;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:8px 16px;font-family:var(--font);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.5px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.copy-btn:hover{background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.5);}
+.copy-btn.copied{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.4);color:#34d399;}
+
+.history-empty{color:var(--muted);font-size:13px;padding:8px 0;}
+.history-table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);padding:0 0 12px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:12px 0;border-bottom:1px solid rgba(31,45,61,0.5);color:var(--text);vertical-align:middle;}
+td:first-child{color:var(--muted);font-size:11px;}
+td code{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);background:rgba(0,212,255,0.07);padding:3px 8px;border-radius:6px;}
+td:last-child{color:var(--muted);font-size:11px;}
+tbody tr:hover td{background:rgba(255,255,255,0.01);}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.7)}}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}.toggles-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">🔐 Security Tool</div>
+    <h1>Gerador de Senhas</h1>
+    <p>Crie senhas fortes e seguras com configuração total</p>
+  </div>
+
+  <div class="card">
+    <form method="post" action="/">
+      <div class="section-title">Configuração básica</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Comprimento</label>
+          <input type="number" name="comprimento" min="4" value="{{ prefs.comprimento }}">
+        </div>
+        <div class="field">
+          <label>Quantidade</label>
+          <input type="number" name="quantidade" min="1" value="{{ prefs.quantidade }}">
+        </div>
+      </div>
+
+      <div class="section-title">Tipos de caracteres</div>
+      <div class="toggles-grid">
+        <!-- CADA item: input REAL + label visual ligados por id/for -->
+        <div class="toggle-item">
+          <input type="checkbox" id="cb_up" name="uppercase" {% if prefs.uppercase %}checked{% endif %}>
+          <label for="cb_up"><span class="toggle-dot"></span>Maiúsculas</label>
+        </div>
+        <div class="toggle-item">
+          <input type="checkbox" id="cb_lo" name="lowercase" {% if prefs.lowercase %}checked{% endif %}>
+          <label for="cb_lo"><span class="toggle-dot"></span>Minúsculas</label>
+        </div>
+        <div class="toggle-item">
+          <input type="checkbox" id="cb_nu" name="numbers" {% if prefs.numbers %}checked{% endif %}>
+          <label for="cb_nu"><span class="toggle-dot"></span>Números</label>
+        </div>
+        <div class="toggle-item">
+          <input type="checkbox" id="cb_sy" name="symbols" {% if prefs.symbols %}checked{% endif %}>
+          <label for="cb_sy"><span class="toggle-dot"></span>Símbolos</label>
+        </div>
+        <div class="toggle-item">
+          <input type="checkbox" id="cb_am" name="exclude_ambiguous" {% if prefs.exclude_ambiguous %}checked{% endif %}>
+          <label for="cb_am"><span class="toggle-dot"></span>Excluir ambíguos</label>
+        </div>
+      </div>
+
+      <div class="advanced-section">
+        <div class="adv-toggle-item">
+          <input type="checkbox" id="include_word_enabled" name="include_word_enabled" {% if prefs.include_word_enabled %}checked{% endif %}>
+          <label for="include_word_enabled"><span class="adv-dot"></span>Incluir palavra personalizada</label>
+        </div>
+        <div class="word-expand" style="{% if prefs.include_word_enabled %}max-height:90px;opacity:1;margin-top:8px;{% else %}max-height:0;opacity:0;margin-top:0;{% endif %}">
+          <input type="text" name="include_word" id="include_word_input" placeholder="Ex: minha_palavra" value="{{ prefs.include_word }}" {% if not prefs.include_word_enabled %}disabled{% endif %}>
+        </div>
+
+        <div class="shuffle-item">
+          <input type="checkbox" id="cb_shuffle" name="include_shuffle" {% if prefs.include_shuffle %}checked{% endif %}>
+          <label for="cb_shuffle"><span class="shuffle-dot"></span>Embaralhar senha final (mais aleatória)</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-generate">⚡ Gerar Senhas</button>
+    </form>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}{% for category, message in messages %}
+    <div class="alert">{{ message }}</div>
+  {% endfor %}{% endif %}
+  {% endwith %}
+
+  {% if results %}
+  <div class="card delay1">
+    <div class="result-header">
+      <h2>Resultados</h2>
+      <span class="result-count">{{ results|length }} senha{% if results|length > 1 %}s{% endif %}</span>
+    </div>
+    {% for item in results %}
+    <div class="result-item" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+      <div class="pwd-wrap">
+        <span class="pwd-value">{{ item.value }}</span>
+        <span class="strength-badge" style="color:{{ item.color }}">{{ item.strength }}</span>
+      </div>
+      <button class="copy-btn" type="button" onclick="copyPwd(this,'{{ item.value }}')">Copiar</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="card delay2">
+    <div class="section-title">Histórico do navegador</div>
+    {% if history %}
+    <div class="history-table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Senha</th><th>Critérios</th></tr></thead>
+        <tbody>
+          {% for entry in history[-10:]|reverse %}
+          <tr>
+            <td>{{ entry.timestamp }}</td>
+            <td><code>{{ entry.password }}</code></td>
+            <td>{{ entry.criteria }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="history-empty">Nenhum histórico ainda para este navegador.</p>
+    {% endif %}
+  </div>
+
+</div>
+<script>
+function copyPwd(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+const includeToggle = document.getElementById('include_word_enabled');
+const includeContainer = document.querySelector('.word-expand');
+const includeInput = document.getElementById('include_word_input');
+
+includeToggle.addEventListener('change', () => {
+  if (includeToggle.checked) {
+    includeContainer.style.maxHeight = '90px';
+    includeContainer.style.opacity = '1';
+    includeContainer.style.marginTop = '8px';
+    includeInput.disabled = false;
+    includeInput.focus();
+  } else {
+    includeContainer.style.maxHeight = '0';
+    includeContainer.style.opacity = '0';
+    includeContainer.style.marginTop = '0';
+    includeInput.disabled = true;
+    includeInput.value = '';
+  }
+});
+</script>
+</body>
+</html>
