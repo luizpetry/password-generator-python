@@ -12,14 +12,14 @@ app.secret_key = 'changeme_please_use_secure_key'
 
 def get_strength_color(level):
     mapping = {
-        'Muito Fraca': 'red',
-        'Fraca': 'orange3',
-        'Média': 'yellow',
-        'Boa': 'green3',
-        'Forte': 'green4',
-        'Muito Forte': 'blue',
+        'Muito Fraca': '#ef4444',  # vermelho
+        'Fraca': '#f97316',       # laranja
+        'Média': '#facc15',       # amarelo
+        'Boa': '#22c55e',         # verde claro
+        'Forte': '#16a34a',       # verde escuro
+        'Muito Forte': '#0284c7', # azul
     }
-    return mapping.get(level, 'gray')
+    return mapping.get(level, '#94a3b8')
 
 
 def check_char_policy(password, uppercase, lowercase, numbers, symbols):
@@ -195,7 +195,7 @@ def index():
                         break
 
             forca = display_strength(senha)
-            results.append({'value': senha, 'strength': forca, 'color': get_strength_color(forca.split()[-1])})
+            results.append({'value': senha, 'strength': forca, 'color': get_strength_color(forca)})
             save(senha, {
                 'mode': 'senha',
                 'comprimento': comprimento,

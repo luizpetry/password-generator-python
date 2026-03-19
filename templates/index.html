@@ -104,7 +104,7 @@
                     <span class="pwd-value">{{ item.value }}</span>
                     <span class="strength-badge" style="color:{{ item.color }}">{{ item.strength }}</span>
                 </div>
-                <button class="copy-btn" type="button" onclick="copyPwd(this,'{{ item.value }}')">Copiar</button>
+                <button class="copy-btn" type="button" data-password="{{ item.value|e }}">Copiar</button>
             </div>
             {% endfor %}
         </div>
@@ -140,13 +140,31 @@
 
     </div>
     <script>
-        function copyPwd(btn, text) {
-            navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = '✓ Copiado';
-                btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
-            });
+        function copyPwdBtn(btn) {
+            const text = btn.dataset.password;
+            if (!text) return;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        btn.textContent = '✓ Copiado';
+                        btn.classList.add('copied');
+                        setTimeout(() => {
+                            btn.textContent = 'Copiar';
+                            btn.classList.remove('copied');
+                        }, 2000);
+                    })
+                    .catch(() => {
+                        alert('Não foi possível copiar automaticamente. Use Ctrl+C.');
+                    });
+            } else {
+                window.prompt('Copie a senha abaixo:', text);
+            }
         }
+
+        document.querySelectorAll('.copy-btn').forEach((btn) => {
+            btn.addEventListener('click', () => copyPwdBtn(btn));
+        });
 
         const includeToggle = document.getElementById('include_word_enabled');
         const includeContainer = document.querySelector('.word-expand');
