@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Escudo sólido ciano sem background -->
+  <path d="M256 40 L420 100 L420 280 Q420 390 256 470 Q92 390 92 280 L92 100 Z"
+        fill="url(#g)"/>
+
+  <!-- Corpo do cadeado preto -->
+  <rect x="176" y="268" width="160" height="124" rx="22" fill="#050a10"/>
+
+  <!-- Arco do cadeado preto -->
+  <path d="M210 268 L210 224 Q210 168 256 168 Q302 168 302 224 L302 268"
+        fill="none" stroke="#050a10" stroke-width="36" stroke-linecap="round"/>
+
+  <!-- Buraco da fechadura ciano -->
+  <circle cx="256" cy="308" r="20" fill="url(#g)"/>
+  <rect x="247" y="323" width="18" height="26" rx="7" fill="url(#g)"/>
+</svg>
