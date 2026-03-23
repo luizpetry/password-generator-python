@@ -8,7 +8,7 @@ from checker import display_strength
 from history import save, load
 
 app = Flask(__name__)
-app.secret_key = 'changeme_please_use_secure_key'
+app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
 
 
 def get_strength_color(level):
