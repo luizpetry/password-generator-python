@@ -63,4 +63,4 @@ Projeto Python completo com:
 
 ## Licença
 
-- MIT (ou a _license_ de sua preferência).
+- MIT Luiz Petry.
